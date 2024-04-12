@@ -1,0 +1,22 @@
+{
+  "name": "esa_api",
+  "version": "1.0.0",
+  "description": "API with working endpoints to solve a functional problem",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZnoGouDj/Electronic-Shipping-Agent-API.git"
+  },
+  "author": "znogoud",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ZnoGouDj/Electronic-Shipping-Agent-API/issues"
+  },
+  "homepage": "https://github.com/ZnoGouDj/Electronic-Shipping-Agent-API#readme",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
