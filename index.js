@@ -13,9 +13,10 @@ app.post('/calculateRounds', (req, res) => {
   try {
     const {anchorageSize, fleets} = data;
     container = initializeContainer(anchorageSize.width, anchorageSize.height);
+    rounds++;
     const ships = convertFleetsToFleetArray(fleets);
 
-    packShips(container, ships);
+    packShips(ships);
 
     res.json(rounds);
   } catch (error) {
@@ -43,10 +44,14 @@ function convertFleetsToFleetArray(fleets) {
   return fleetArray;
 }
 
-function placeShip(container, x, y, shipWidth, shipHeight) {
+function placeShip(x, y, shipWidth, shipHeight) {
   console.log('Placing ship at:', x, y);
   console.log('Ship dimensions:', shipWidth, shipHeight);
-  console.log('Container dimensions:', container[0].length, container.length);
+  // console.log('Container dimensions:', container[0].length, container.length);
+  console.log('***')
+  console.log('container[0].length - y: ', container[0].length - y);
+  console.log('container.length - x', container.length - x);
+  console.log('***')
 
   if (container[0].length - y >= shipHeight && container.length - x >= shipWidth) {
     for (let i = y; i < y + shipHeight; i++) {
@@ -79,7 +84,7 @@ function checkFit(container, x, y, shipWidth, shipHeight) {
   return placeShip(container, x, y, shipWidth, shipHeight);
 }
 
-function findEmptyPosition(container) {
+function findEmptyPosition() {
   // Iterate over the container to find the first empty position
   for (let i = 0; i < container.length; i++) {
     for (let j = 0; j < container[i].length; j++) {
@@ -91,14 +96,13 @@ function findEmptyPosition(container) {
   return null; // No empty position found
 }
 
-function packShips(container, ships) {
+function packShips(ships) {
   ships.forEach(ship => {
     const [shipWidth, shipHeight] = ship;
-    const emptyPosition = findEmptyPosition(container);
-    console.log('emptyPosition: ', emptyPosition)
+    const emptyPosition = findEmptyPosition();
     if (emptyPosition) {
       const [x, y] = emptyPosition;
-      placeShip(container, x, y, shipWidth, shipHeight);
+      placeShip(x, y, shipWidth, shipHeight);
     } else {
       console.log("Container is full, cannot pack more ships.");
     }
