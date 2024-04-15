@@ -5,125 +5,104 @@ const app = express();
 const port = 3000;
 
 app.use(bodyParser.json());
-
+let rounds = 0;
+let container;
 app.post('/calculateRounds', (req, res) => {
   const data = req.body;
 
   try {
-    const minRounds = calculateMinRounds(data);
-    res.json(minRounds);
+    const {anchorageSize, fleets} = data;
+    container = initializeContainer(anchorageSize.width, anchorageSize.height);
+    const ships = convertFleetsToFleetArray(fleets);
+
+    packShips(container, ships);
+
+    res.json(rounds);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 });
 
-const fleetMatrix = [
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-]
-
-let anchorageSchema;
-let fleetsCopy;
-
-function calculateMinRounds({ anchorageSize, fleets }) {
-  fleetsCopy = JSON.parse(JSON.stringify(fleets))
-  anchorageSchema = createAnchorageSchema(anchorageSize);
-  console.log('anchorageSchema: ', anchorageSchema); // matrix above
-
-  const shipMap = createShipMap(fleetsCopy);
-  // console.log('shipMap: ', shipMap)
-  /*{
-    5 => [
-      {
-        singleShipDimensions: { "width": 6, "height": 5 },
-        shipDesignation: 'LNG Unit',
-        shipCount: 2
-      }
-    ],
-    3 => [
-      {
-        singleShipDimensions: { "width": 3, "height": 12 },
-        shipDesignation: 'Science & Engineering Ship',
-        shipCount: 5
-      }
-    ]
-  }*/
-
-  const largestShip = findLargestShip(fleetsCopy);
-  // console.log('largestShip: ', largestShip);
-  /*{
-    singleShipDimensions: { width: 3, height: 12 },
-    shipDesignation: 'Science & Engineering Ship',
-    shipCount: 5
-  }*/
-
-  placeShip(largestShip);
-
-  console.log('anchorageSchema after: ', anchorageSchema);
-  console.log('fleets: ', fleetsCopy)
-
-  return { largestShip, shipMap };
+function initializeContainer(width, height) {
+  const container = [];
+  for (let i = 0; i < height; i++) {
+    container.push(Array(width).fill(0));
+  }
+  return container;
 }
 
-function createShipMap(fleets) {
-  const shipMap = new Map();
-
+function convertFleetsToFleetArray(fleets) {
+  const fleetArray = [];
   fleets.forEach(fleet => {
     const { width, height } = fleet.singleShipDimensions;
-    const smallestDimension = Math.min(width, height);
-
-    if (!shipMap.has(smallestDimension)) {
-      shipMap.set(smallestDimension, []);
-    }
-
-    shipMap.get(smallestDimension).push(fleet);
-  });
-
-  return shipMap;
-}
-
-function findLargestShip(fleets) {
-  let largestShipArea = 0;
-  let largestShip = null;
-
-  fleets.forEach(fleet => {
-    const shipArea = fleet.singleShipDimensions.width * fleet.singleShipDimensions.height;
-
-    if (shipArea > largestShipArea) {
-      largestShipArea = shipArea;
-      largestShip = fleet;
+    const shipCount = fleet.shipCount;
+    for (let i = 0; i < shipCount; i++) {
+      fleetArray.push([width, height]);
     }
   });
-
-  return largestShip;
+  return fleetArray;
 }
 
-function createAnchorageSchema(anchorageSize) {
-  return Array.from({ length: anchorageSize.height }, () =>
-    Array.from({ length: anchorageSize.width }, () => 0)
-  );
-}
+function placeShip(container, x, y, shipWidth, shipHeight) {
+  console.log('Placing ship at:', x, y);
+  console.log('Ship dimensions:', shipWidth, shipHeight);
+  console.log('Container dimensions:', container[0].length, container.length);
 
-function placeShip(fleet) {
-  if (anchorageSchema[0].length >= fleet.singleShipDimensions.height && anchorageSchema.length >= fleet.singleShipDimensions.width) {
-    for (let i = 0; i < fleet.singleShipDimensions.width; i++) {
-      anchorageSchema[i].splice(0, fleet.singleShipDimensions.height);
+  if (container[0].length - y >= shipHeight && container.length - x >= shipWidth) {
+    for (let i = y; i < y + shipHeight; i++) {
+      for (let j = x; j < x + shipWidth; j++) {
+        console.log('Checking position:', i, j);
+        container[i][j] = 1;
+      }
     }
-    fleet.shipCount--;
+  } else if (container[0].length - y >= shipWidth && container.length - x >= shipHeight) {
+    for (let i = y; i < y + shipWidth; i++) {
+      for (let j = x; j < x + shipHeight; j++) {
+        console.log('Checking position horizont:', i, j);
+        container[i][j] = 1;
+      }
+    }
+  } else {
+    rounds++;
+    container = initializeContainer(container[0].length, container.length)
   }
+
+  container.forEach(row => console.log(row.join(" ")));
+}
+
+function checkFit(container, x, y, shipWidth, shipHeight) {
+  // Check if the ship fits within the bounds of the container
+  if (x + shipWidth > container[0].length || y + shipHeight > container.length) {
+    return false;
+  }
+  // Check if the positions in the container are empty
+  return placeShip(container, x, y, shipWidth, shipHeight);
+}
+
+function findEmptyPosition(container) {
+  // Iterate over the container to find the first empty position
+  for (let i = 0; i < container.length; i++) {
+    for (let j = 0; j < container[i].length; j++) {
+      if (container[i][j] === 0) {
+        return [j, i]; // Return coordinates [x, y]
+      }
+    }
+  }
+  return null; // No empty position found
+}
+
+function packShips(container, ships) {
+  ships.forEach(ship => {
+    const [shipWidth, shipHeight] = ship;
+    const emptyPosition = findEmptyPosition(container);
+    console.log('emptyPosition: ', emptyPosition)
+    if (emptyPosition) {
+      const [x, y] = emptyPosition;
+      placeShip(container, x, y, shipWidth, shipHeight);
+    } else {
+      console.log("Container is full, cannot pack more ships.");
+    }
+  });
 }
 
 app.listen(port, () => {
