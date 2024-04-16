@@ -13,7 +13,7 @@ app.post('/calculateRounds', (req, res) => {
   try {
     const {anchorageSize, fleets} = data;
     container = initializeContainer(anchorageSize.width, anchorageSize.height);
-    rounds++;
+    rounds = 1;
     const ships = convertFleetsToFleetArray(fleets);
 
     packShips(ships);
@@ -44,56 +44,53 @@ function convertFleetsToFleetArray(fleets) {
   return fleetArray;
 }
 
-function placeShip(x, y, shipWidth, shipHeight) {
-  console.log('Placing ship at:', x, y);
+function placeShip(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, shipWidth, shipHeight) {
+  console.log('Placing ship at:', firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray);
   console.log('Ship dimensions:', shipWidth, shipHeight);
   // console.log('Container dimensions:', container[0].length, container.length);
-  console.log('***')
-  console.log('container[0].length - y: ', container[0].length - y);
-  console.log('container.length - x', container.length - x);
-  console.log('***')
+  // console.log('***vertical***')
+  // console.log('container[0].length - firstEmptyPositionInRegularArray: ', container[0].length - firstEmptyPositionInRegularArray);
+  // console.log('container.length - firstEmptyPositionInDeepArray', container.length - firstEmptyPositionInDeepArray);
+  // console.log('***')
+  // console.log('###horizontal###')
+  // console.log('container[0].length - firstEmptyPositionInDeepArray: ', container[0].length - firstEmptyPositionInDeepArray);
+  // console.log('container.length - firstEmptyPositionInRegularArray', container.length - firstEmptyPositionInRegularArray);
+  // console.log('###')
 
-  if (container[0].length - y >= shipHeight && container.length - x >= shipWidth) {
-    for (let i = y; i < y + shipHeight; i++) {
-      for (let j = x; j < x + shipWidth; j++) {
-        console.log('Checking position:', i, j);
+  if (container[0].length - firstEmptyPositionInRegularArray >= shipHeight && container.length - firstEmptyPositionInDeepArray >= shipWidth) {
+    for (let i = firstEmptyPositionInRegularArray; i < firstEmptyPositionInRegularArray + shipHeight; i++) {
+      for (let j = firstEmptyPositionInDeepArray; j < firstEmptyPositionInDeepArray + shipWidth; j++) {
+        // console.log('Checking position:', i, j);
         container[i][j] = 1;
       }
     }
-  } else if (container[0].length - y >= shipWidth && container.length - x >= shipHeight) {
-    for (let i = y; i < y + shipWidth; i++) {
-      for (let j = x; j < x + shipHeight; j++) {
-        console.log('Checking position horizont:', i, j);
+  container.forEach(row => console.log(row.join(" ")));
+  } else if (container[0].length - firstEmptyPositionInDeepArray >= shipHeight && container.length - firstEmptyPositionInRegularArray >= shipWidth) {
+    for (let i = firstEmptyPositionInRegularArray; i < firstEmptyPositionInRegularArray + shipWidth; i++) {
+      for (let j = firstEmptyPositionInDeepArray; j < firstEmptyPositionInDeepArray + shipHeight; j++) {
+        // console.log('Checking position horizont:', i, j);
         container[i][j] = 1;
       }
     }
+  container.forEach(row => console.log(row.join(" ")));
   } else {
     rounds++;
+    console.log('REFRESHING CONTAINER!')
+  container.forEach(row => console.log(row.join(" ")));
     container = initializeContainer(container[0].length, container.length)
   }
 
-  container.forEach(row => console.log(row.join(" ")));
-}
-
-function checkFit(container, x, y, shipWidth, shipHeight) {
-  // Check if the ship fits within the bounds of the container
-  if (x + shipWidth > container[0].length || y + shipHeight > container.length) {
-    return false;
-  }
-  // Check if the positions in the container are empty
-  return placeShip(container, x, y, shipWidth, shipHeight);
 }
 
 function findEmptyPosition() {
-  // Iterate over the container to find the first empty position
   for (let i = 0; i < container.length; i++) {
     for (let j = 0; j < container[i].length; j++) {
       if (container[i][j] === 0) {
-        return [j, i]; // Return coordinates [x, y]
+        return [j, i];
       }
     }
   }
-  return null; // No empty position found
+  return null;
 }
 
 function packShips(ships) {
@@ -101,8 +98,8 @@ function packShips(ships) {
     const [shipWidth, shipHeight] = ship;
     const emptyPosition = findEmptyPosition();
     if (emptyPosition) {
-      const [x, y] = emptyPosition;
-      placeShip(x, y, shipWidth, shipHeight);
+      const [firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray] = emptyPosition;
+      placeShip(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, shipWidth, shipHeight);
     } else {
       console.log("Container is full, cannot pack more ships.");
     }
