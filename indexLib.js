@@ -15,7 +15,7 @@ let rounds = 0;
 
 app.post('/calculateRoundsWithLib', (req, res) => {
     const data = req.body;
-  
+    console.log('receiving the request...')
     try {
       const {anchorageSize, fleets} = data;
       rounds = 0;

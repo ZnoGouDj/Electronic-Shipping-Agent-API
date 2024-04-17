@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "API with working endpoints to solve a functional problem",
   "main": "index.js",
+  "type": "commonjs",
   "scripts": {
     "start": "nodemon index.js",
     "start:lib": "nodemon indexLib.js",
-    "test": "mocha ./test/api.testLib.js"
+    "test": "mocha ./test/api.testLib.mjs"
   },
   "repository": {
     "type": "git",
@@ -20,11 +21,12 @@
   "homepage": "https://github.com/ZnoGouDj/Electronic-Shipping-Agent-API#readme",
   "dependencies": {
     "express": "^4.19.2",
+    "mocha": "^10.4.0",
     "nodemon": "^3.1.0"
   },
   "devDependencies": {
     "bb-bin-packing": "^300.0.3",
     "chai": "^5.1.0",
-    "mocha": "^10.4.0"
+    "request": "^2.88.2"
   }
 }
