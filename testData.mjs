@@ -5,9 +5,9 @@ export const requestData_trivial_1 = {
     },
     "fleets": [
         { 
-        "singleShipDimensions": { "width": 6, "height": 5 },
-        "shipDesignation": "LNG Unit",
-        "shipCount": 6 
+            "singleShipDimensions": { "width": 6, "height": 5 },
+            "shipDesignation": "LNG Unit",
+            "shipCount": 6 
         }
     ]
 };
@@ -19,14 +19,14 @@ export const requestData_trivial_2 = {
     },
     "fleets": [
         {
-        "singleShipDimensions": { "width": 6, "height": 5 },
-        "shipDesignation": "LNG Unit",
-        "shipCount": 2
+            "singleShipDimensions": { "width": 6, "height": 5 },
+            "shipDesignation": "LNG Unit",
+            "shipCount": 2
         },
         {
-        "singleShipDimensions": { "width": 3, "height": 12 },
-        "shipDesignation": "Science & Engineering Ship",
-        "shipCount": 5
+            "singleShipDimensions": { "width": 3, "height": 12 },
+            "shipDesignation": "Science & Engineering Ship",
+            "shipCount": 5
         }
     ]
 };
@@ -38,9 +38,9 @@ export const requestData_trivial_3 =  {
     },
     "fleets": [
         {
-        "singleShipDimensions": { "width": 6, "height": 5 },
-        "shipDesignation": "LNG Unit",
-        "shipCount": 18
+            "singleShipDimensions": { "width": 6, "height": 5 },
+            "shipDesignation": "LNG Unit",
+            "shipCount": 18
         }
     ]
 };
@@ -52,24 +52,24 @@ export const requestData_trivial_rotation_1 =  {
     },
     "fleets": [
         {
-        "singleShipDimensions": { "width": 8, "height": 4 },
-        "shipDesignation": "LNG Unit",
-        "shipCount": 1
+            "singleShipDimensions": { "width": 8, "height": 4 },
+            "shipDesignation": "LNG Unit",
+            "shipCount": 1
         },
         {
-        "singleShipDimensions": { "width": 4, "height": 6 },
-        "shipDesignation": "LNG Unit We Need To Rotate",
-        "shipCount": 1
+            "singleShipDimensions": { "width": 4, "height": 6 },
+            "shipDesignation": "LNG Unit We Need To Rotate",
+            "shipCount": 1
         },
         {
-        "singleShipDimensions": { "width": 4, "height": 2 },
-        "shipDesignation": "LNG Unit We Need To Rotate Too",
-        "shipCount": 1
-        },
+            "singleShipDimensions": { "width": 4, "height": 2 },
+            "shipDesignation": "LNG Unit We Need To Rotate Too",
+            "shipCount": 1
+        }
     ]
-};
+}
 
-export const requestData_average_1 =  {
+export const requestData_average_1 = {
     "anchorageSize": {
         "width": 15,
         "height": 23
@@ -148,7 +148,7 @@ export const requestData_average_2 =  {
             "singleShipDimensions": { "width": 2, "height": 2 },
             "shipDesignation": "LNG Unit 7",
             "shipCount": 2
-        },
+        }
     ]
 };
 

@@ -22,7 +22,7 @@ function initializeContainer(width, height) {
 
 exports.initializeContainer = initializeContainer;
 
-function findEmptyPosition() {
+function findEmptyPosition(container) {
     for (let i = 0; i < container.length; i++) {
       for (let j = 0; j < container[i].length; j++) {
         if (container[i][j] === 0) {
@@ -34,3 +34,14 @@ function findEmptyPosition() {
 }
 
 exports.findEmptyPosition = findEmptyPosition;
+
+function findAnotherEmptyPosition(container) {
+  for (let i = 0; i < container.length; i++) {
+    if (container[i][0] === 0) {
+      return [0, i];
+    }
+  }
+  return null;
+}
+
+exports.findAnotherEmptyPosition = findAnotherEmptyPosition;
