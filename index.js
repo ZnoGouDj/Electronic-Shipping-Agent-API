@@ -11,27 +11,45 @@ app.use(bodyParser.json());
 let rounds = 0;
 let container;
 
+let roundsA = 0;
+let roundsB = 0;
+
 app.post('/calculateRounds', (req, res) => {
   const data = req.body;
 
   try {
     const {anchorageSize, fleets} = data;
-    container = initializeContainer(anchorageSize.width, anchorageSize.height);
-    rounds = 1;
-    const ships = convertFleetsToFleetArray(fleets).sort((a, b) => {
-      if (a[0] !== b[0]) {
-          return b[0] - a[0];
-      } else {
-          return b[1] - a[1];
+
+    for (let i = 0; i < 2; i++) {
+      container = initializeContainer(anchorageSize.width, anchorageSize.height);
+      rounds = 1;
+      let ships = convertFleetsToFleetArray(fleets).sort((a, b) => {
+        if (a[0] !== b[0]) {
+            return b[0] - a[0];
+        } else {
+            return b[1] - a[1];
+        }
+      });
+
+      if (i === 1) {
+        ships = ships.map(([width, height]) => {
+          return [height, width]
+        })
       }
-    });
 
-    console.log('Container dimensions:', container[0].length, container.length);
-    console.log('ship: ', ships);
+      console.log('Container dimensions:', container[0].length, container.length);
+      console.log('ship: ', ships);
+  
+      packShips(ships);
 
-    packShips(ships);
+      if (i === 0) {
+        roundsA = rounds;
+      } else if (i === 1) {
+        roundsB = rounds;
+      }
+    }
 
-    res.json(rounds);
+    res.json(Math.min(roundsA, roundsB));
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
