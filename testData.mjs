@@ -31,7 +31,7 @@ export const requestData_trivial_2 = {
     ]
 };
 
-export const requestData_trivial_3 =  {
+export const requestData_trivial_3 = {
     "anchorageSize": {
         "width": 12,
         "height": 15
@@ -45,7 +45,7 @@ export const requestData_trivial_3 =  {
     ]
 };
 
-export const requestData_trivial_rotation_1 =  {
+export const requestData_trivial_rotation_1 = {
     "anchorageSize": {
         "width": 8,
         "height": 8
@@ -103,7 +103,7 @@ export const requestData_average_1 = {
     ]
 };
 
-export const requestData_average_2 =  {
+export const requestData_average_2 = {
     "anchorageSize": {
         "width": 15,
         "height": 13

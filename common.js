@@ -3,8 +3,12 @@ function convertFleetsToFleetArray(fleets) {
     fleets.forEach(fleet => {
       const { width, height } = fleet.singleShipDimensions;
       const shipCount = fleet.shipCount;
+
+      const biggestDimension = Math.max(width, height);
+      const smallestDimension = Math.min(width, height);
+
       for (let i = 0; i < shipCount; i++) {
-        fleetArray.push([width, height]);
+        fleetArray.push([biggestDimension, smallestDimension]);
       }
     });
     return fleetArray;
@@ -22,11 +26,13 @@ function initializeContainer(width, height) {
 
 exports.initializeContainer = initializeContainer;
 
-function findEmptyPosition(container) {
+function findEmptyPosition(container, ship) {
     for (let i = 0; i < container.length; i++) {
       for (let j = 0; j < container[i].length; j++) {
-        if (container[i][j] === 0) {
-          return [j, i];
+        if (container[i][j] === 0 && willCurrentShipFit(container, i, j, ship)) {
+          return [j, i, false];
+        } else if (container[i][j] === 0 && willCurrentShipFitIfRotated(container, i, j, ship)) {
+          return [j, i, true];
         }
       }
     }
@@ -45,3 +51,38 @@ function findAnotherEmptyPosition(container) {
 }
 
 exports.findAnotherEmptyPosition = findAnotherEmptyPosition;
+
+function willCurrentShipFit(container, i, j, ship) {
+  if (i + ship[1] > container.length || j + ship[0] > container[0].length) {
+      return false;
+  }
+
+  for (let x = i; x < i + ship[1]; x++) {
+      for (let y = j; y < j + ship[0]; y++) {
+          if (container[x][y] === 1) {
+              return false;
+          }
+      }
+  }
+
+  return true;
+}
+
+function willCurrentShipFitIfRotated(container, i, j, ship) {
+  const rotatedShip = [ship[1], ship[0]];
+
+  if (i + rotatedShip[1] > container.length || j + rotatedShip[0] > container[0].length) {
+      return false;
+  }
+
+  for (let x = i; x < i + rotatedShip[1]; x++) {
+      for (let y = j; y < j + rotatedShip[0]; y++) {
+          // If any cell in the placement area is already occupied, return false
+          if (container[x][y] === 1) {
+              return false;
+          }
+      }
+  }
+
+  return true;
+}
