@@ -41,17 +41,6 @@ function findEmptyPosition(container, ship) {
 
 exports.findEmptyPosition = findEmptyPosition;
 
-function findAnotherEmptyPosition(container) {
-  for (let i = 0; i < container.length; i++) {
-    if (container[i][0] === 0) {
-      return [0, i];
-    }
-  }
-  return null;
-}
-
-exports.findAnotherEmptyPosition = findAnotherEmptyPosition;
-
 function willCurrentShipFit(container, i, j, ship) {
   if (i + ship[1] > container.length || j + ship[0] > container[0].length) {
       return false;

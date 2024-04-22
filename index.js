@@ -1,7 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const {convertFleetsToFleetArray, initializeContainer, findEmptyPosition, findAnotherEmptyPosition} = require('./common.js')
+const {
+  convertFleetsToFleetArray,
+  initializeContainer,
+  findEmptyPosition
+} = require('./common.js')
 
 const app = express();
 const port = 4000;
@@ -15,46 +19,50 @@ let SHIPS;
 let ROUNDS_A = 0;
 let ROUNDS_B = 0;
 
-app.post('/calculateRounds', (req, res) => {
+app.post('/calculateRounds', handleCalculateRounds);
+
+function handleCalculateRounds(req, res) {
   const data = req.body;
 
   try {
-    const {anchorageSize, fleets} = data;
+    const { anchorageSize, fleets } = data;
 
     for (let i = 0; i < 2; i++) {
-      CONTAINER = initializeContainer(anchorageSize.width, anchorageSize.height);
-      ROUNDS = 1;
-      SHIPS = convertFleetsToFleetArray(fleets).sort((a, b) => {
-        if (a[0] !== b[0]) {
-            return b[0] - a[0];
-        } else {
-            return b[1] - a[1];
-        }
-      });
-
-      if (i === 1) {
-        SHIPS = SHIPS.map(([width, height]) => {
-          return [height, width]
-        })
-      }
-
-      console.log('CONTAINER dimensions:', CONTAINER[0].length, CONTAINER.length);
-      console.log('ship: ', SHIPS);
-  
-      packShips(SHIPS);
-
-      if (i === 0) {
-        ROUNDS_A = ROUNDS;
-      } else if (i === 1) {
-        ROUNDS_B = ROUNDS;
-      }
+      initializeRound(anchorageSize, fleets, i);
     }
 
     res.json(Math.min(ROUNDS_A, ROUNDS_B));
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
-});
+}
+
+function initializeRound(anchorageSize, fleets, index) {
+  CONTAINER = initializeContainer(anchorageSize.width, anchorageSize.height);
+  ROUNDS = 1;
+  SHIPS = convertFleetsToFleetArray(fleets).sort((a, b) => {
+    if (a[0] !== b[0]) {
+      return b[0] - a[0];
+    } else {
+      return b[1] - a[1];
+    }
+  });
+
+  if (index === 1) {
+    SHIPS = SHIPS.map(([width, height]) => [height, width]);
+  }
+
+  console.log('CONTAINER dimensions:', CONTAINER[0].length, CONTAINER.length);
+  console.log('ship: ', SHIPS);
+
+  packShips(SHIPS);
+
+  if (index === 0) {
+    ROUNDS_A = ROUNDS;
+  } else if (index === 1) {
+    ROUNDS_B = ROUNDS;
+  }
+}
 
 function placeShip(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, [sideA, sideB], index) {
   console.log('Placing ship at:', firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray);
