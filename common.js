@@ -77,7 +77,6 @@ function willCurrentShipFitIfRotated(container, i, j, ship) {
 
   for (let x = i; x < i + rotatedShip[1]; x++) {
       for (let y = j; y < j + rotatedShip[0]; y++) {
-          // If any cell in the placement area is already occupied, return false
           if (container[x][y] === 1) {
               return false;
           }

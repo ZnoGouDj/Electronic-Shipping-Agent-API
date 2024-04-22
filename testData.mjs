@@ -81,11 +81,6 @@ export const requestData_average_1 = {
             "shipCount": 1
         },
         {
-            "singleShipDimensions": { "width": 7, "height": 7 },
-            "shipDesignation": "LNG Unit 1",
-            "shipCount": 1
-        },
-        {
             "singleShipDimensions": { "width": 7, "height": 16 },
             "shipDesignation": "LNG Unit 2",
             "shipCount": 1
