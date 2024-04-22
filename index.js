@@ -8,12 +8,12 @@ const port = 4000;
 
 app.use(bodyParser.json());
 
-let rounds = 0;
-let container;
-let ships;
+let ROUNDS = 0;
+let CONTAINER;
+let SHIPS;
 
-let roundsA = 0;
-let roundsB = 0;
+let ROUNDS_A = 0;
+let ROUNDS_B = 0;
 
 app.post('/calculateRounds', (req, res) => {
   const data = req.body;
@@ -22,9 +22,9 @@ app.post('/calculateRounds', (req, res) => {
     const {anchorageSize, fleets} = data;
 
     for (let i = 0; i < 2; i++) {
-      container = initializeContainer(anchorageSize.width, anchorageSize.height);
-      rounds = 1;
-      ships = convertFleetsToFleetArray(fleets).sort((a, b) => {
+      CONTAINER = initializeContainer(anchorageSize.width, anchorageSize.height);
+      ROUNDS = 1;
+      SHIPS = convertFleetsToFleetArray(fleets).sort((a, b) => {
         if (a[0] !== b[0]) {
             return b[0] - a[0];
         } else {
@@ -33,96 +33,97 @@ app.post('/calculateRounds', (req, res) => {
       });
 
       if (i === 1) {
-        ships = ships.map(([width, height]) => {
+        SHIPS = SHIPS.map(([width, height]) => {
           return [height, width]
         })
       }
 
-      console.log('Container dimensions:', container[0].length, container.length);
-      console.log('ship: ', ships);
+      console.log('CONTAINER dimensions:', CONTAINER[0].length, CONTAINER.length);
+      console.log('ship: ', SHIPS);
   
-      packShips(ships);
+      packShips(SHIPS);
 
       if (i === 0) {
-        roundsA = rounds;
+        ROUNDS_A = ROUNDS;
       } else if (i === 1) {
-        roundsB = rounds;
+        ROUNDS_B = ROUNDS;
       }
     }
 
-    res.json(Math.min(roundsA, roundsB));
+    res.json(Math.min(ROUNDS_A, ROUNDS_B));
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 });
 
-function placeShip(
-  firstEmptyPositionInDeepArray,
-  firstEmptyPositionInRegularArray,
-  [sideA, sideB],
-  index
-) {
+function placeShip(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, [sideA, sideB], index) {
   console.log('Placing ship at:', firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray);
   console.log('Ship dimensions:', sideA, sideB);
-  console.log('ships[]: ', ships)
+  console.log('SHIPS[]: ', SHIPS);
 
-  // console.log('1st: ', [firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray]);
-  // console.log('2nd: ', [anotherEmptyPositionInDeepArray, anotherEmptyPositionInRegularArray]);
-  // console.log('Container dimensions:', container[0].length, container.length);
-  // console.log('***vertical***')
-  // console.log('container[0].length - firstEmptyPositionInRegularArray: ', container[0].length - firstEmptyPositionInRegularArray);
-  // console.log('container.length - firstEmptyPositionInDeepArray', container.length - firstEmptyPositionInDeepArray);
-  // console.log('***')
-  // console.log('###horizontal###')
-  // console.log('container[0].length - firstEmptyPositionInDeepArray: ', container[0].length - firstEmptyPositionInDeepArray);
-  // console.log('container.length - firstEmptyPositionInRegularArray', container.length - firstEmptyPositionInRegularArray);
-  // console.log('###')
-
-  if (container.length - firstEmptyPositionInRegularArray >= sideB && container[0].length - firstEmptyPositionInDeepArray >= sideA) {
-    for (let i = firstEmptyPositionInRegularArray; i < firstEmptyPositionInRegularArray + sideB; i++) {
-      for (let j = firstEmptyPositionInDeepArray; j < firstEmptyPositionInDeepArray + sideA; j++) {
-        container[i][j] = 1;
-      }
-    }
-    ships.splice(index, 1, undefined);
-    container.forEach(row => console.log(row.join(" ")));
-  } else if (container[0].length - firstEmptyPositionInDeepArray >= sideB && container.length - firstEmptyPositionInRegularArray >= sideA) {
-    for (let i = firstEmptyPositionInRegularArray; i < firstEmptyPositionInRegularArray + sideA; i++) {
-      for (let j = firstEmptyPositionInDeepArray; j < firstEmptyPositionInDeepArray + sideB; j++) {
-        container[i][j] = 1;
-      }
-    }
-    ships.splice(index, 1, undefined);
-    container.forEach(row => console.log(row.join(" ")));
+  if (canPlaceShipHorizontally(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB)) {
+      placeShipHorizontally(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, index);
+  } else if (canPlaceShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB)) {
+      placeShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, index);
   } else {
-    rounds++;
-    console.log('REFRESHING CONTAINER!')
-    container = initializeContainer(container[0].length, container.length)
-
-    if (container.length >= sideB && container[0].length >= sideA) {
-      for (let i = 0; i < sideA; i++) {
-        for (let j = 0; j < sideB; j++) {
-          container[i][j] = 1;
-        }
-      }
-    } else if (container[0].length >= sideB && container.length >= sideA) {
-
-      for (let i = 0; i < sideB; i++) {
-        for (let j = 0; j < sideA; j++) {
-          container[i][j] = 1;
-        }
-      }
-    }
-
-    ships.splice(index, 1, undefined);
-    container.forEach(row => console.log(row.join(" ")));
+      handleInsufficientSpace(sideA, sideB, index);
   }
 }
 
-function packShips(ships) {
-  ships.forEach((ship, index) => {
+function canPlaceShipHorizontally(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB) {
+  return CONTAINER[0].length - firstEmptyPositionInDeepArray >= sideA && CONTAINER.length - firstEmptyPositionInRegularArray >= sideB;
+}
+
+function canPlaceShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB) {
+  return CONTAINER[0].length - firstEmptyPositionInDeepArray >= sideB && CONTAINER.length - firstEmptyPositionInRegularArray >= sideA;
+}
+
+function placeShipHorizontally(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, index) {
+  for (let i = firstEmptyPositionInRegularArray; i < firstEmptyPositionInRegularArray + sideB; i++) {
+      for (let j = firstEmptyPositionInDeepArray; j < firstEmptyPositionInDeepArray + sideA; j++) {
+          CONTAINER[i][j] = 1;
+      }
+  }
+  SHIPS.splice(index, 1, undefined);
+  CONTAINER.forEach(row => console.log(row.join(" ")));
+}
+
+function placeShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, index) {
+  for (let i = firstEmptyPositionInRegularArray; i < firstEmptyPositionInRegularArray + sideA; i++) {
+      for (let j = firstEmptyPositionInDeepArray; j < firstEmptyPositionInDeepArray + sideB; j++) {
+          CONTAINER[i][j] = 1;
+      }
+  }
+  SHIPS.splice(index, 1, undefined);
+  CONTAINER.forEach(row => console.log(row.join(" ")));
+}
+
+function handleInsufficientSpace(sideA, sideB, index) {
+  ROUNDS++;
+  CONTAINER = initializeContainer(CONTAINER[0].length, CONTAINER.length);
+
+  if (CONTAINER.length >= sideB && CONTAINER[0].length >= sideA) {
+      for (let i = 0; i < sideA; i++) {
+          for (let j = 0; j < sideB; j++) {
+              CONTAINER[i][j] = 1;
+          }
+      }
+  } else if (CONTAINER[0].length >= sideB && CONTAINER.length >= sideA) {
+      for (let i = 0; i < sideB; i++) {
+          for (let j = 0; j < sideA; j++) {
+              CONTAINER[i][j] = 1;
+          }
+      }
+  }
+
+  SHIPS.splice(index, 1, undefined);
+  CONTAINER.forEach(row => console.log(row.join(" ")));
+}
+
+function packShips(SHIPS) {
+  SHIPS.forEach((ship, index) => {
     const [shipWidth, shipHeight] = ship;
-    const emptyPosition = findEmptyPosition(container, ship);
+    const emptyPosition = findEmptyPosition(CONTAINER, ship);
 
     if (emptyPosition) {
       const [firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, needsRotation] = emptyPosition;
@@ -134,8 +135,8 @@ function packShips(ships) {
         index
       );
     } else {
-      console.log("Container is full, cannot pack more ships.");
-      placeShip(container[0].length - 1, container.length - 1, [shipWidth, shipHeight], index);
+      console.log("CONTAINER is full, cannot pack more SHIPS.");
+      placeShip(CONTAINER[0].length - 1, CONTAINER.length - 1, [shipWidth, shipHeight], index);
     }
   });
 }
