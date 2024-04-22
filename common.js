@@ -48,7 +48,7 @@ function willCurrentShipFit(container, i, j, ship) {
 
   for (let x = i; x < i + ship[1]; x++) {
       for (let y = j; y < j + ship[0]; y++) {
-          if (container[x][y] === 1) {
+          if (container[x][y] !== 0) {
               return false;
           }
       }
@@ -92,11 +92,16 @@ function placeShipHorizontally(firstEmptyPositionInDeepArray, firstEmptyPosition
 
   for (let i = firstEmptyPositionInRegularArray; i < firstEmptyPositionInRegularArray + sideB; i++) {
       for (let j = firstEmptyPositionInDeepArray; j < firstEmptyPositionInDeepArray + sideA; j++) {
+        
+// !Todo - remove after debug
+        if (CONTAINER[i][j] !== 0) {
+          console.log('ACHTUNG!!1')
+        }
           CONTAINER[i][j] = randomSymbol;
       }
   }
   SHIPS.splice(index, 1, undefined);
-  CONTAINER.forEach(row => console.log(row.join(" ")));
+  // CONTAINER.forEach(row => console.log(row.join(" ")));
 }
 
 exports.placeShipHorizontally = placeShipHorizontally;
@@ -106,11 +111,16 @@ function placeShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositionIn
 
   for (let i = firstEmptyPositionInRegularArray; i < firstEmptyPositionInRegularArray + sideA; i++) {
       for (let j = firstEmptyPositionInDeepArray; j < firstEmptyPositionInDeepArray + sideB; j++) {
+  
+// !Todo - remove after debug
+          if (CONTAINER[i][j] !== 0) {
+            console.log('ACHTUNG!!1')
+          }
           CONTAINER[i][j] = randomSymbol;
       }
   }
   SHIPS.splice(index, 1, undefined);
-  CONTAINER.forEach(row => console.log(row.join(" ")));
+  // CONTAINER.forEach(row => console.log(row.join(" ")));
 }
 
 exports.placeShipVertically = placeShipVertically;

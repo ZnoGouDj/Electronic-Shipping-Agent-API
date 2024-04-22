@@ -21,6 +21,9 @@ let ROUNDS_B = 0;
 let CONTAINER;
 let SHIPS;
 
+// !Todo - remove after debug
+const CONTAINERS = [];
+
 app.post('/calculateRounds', handleCalculateRounds);
 
 function handleCalculateRounds(req, res) {
@@ -33,6 +36,14 @@ function handleCalculateRounds(req, res) {
       initializeRound(anchorageSize, fleets, i);
     }
 
+    // !Todo - remove after debug
+    console.log('CONTAINERS: ')
+    CONTAINERS.forEach(container => {
+      container.forEach(row => console.log(row.join(" ")))
+      console.log('**********************************')
+      console.log('**********************************')
+      console.log('**********************************')
+    })
     res.json(Math.min(ROUNDS_A, ROUNDS_B));
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -50,12 +61,24 @@ function initializeRound(anchorageSize, fleets, index) {
     }
   });
 
+// !Todo - remove after debug
+  function logArrayInChunks(arr, chunkSize) {
+    for (let i = 0; i < arr.length; i += chunkSize) {
+      const chunk = arr.slice(i, i + chunkSize);
+      console.log(chunk);
+    }
+  }
+  
+  const chunkSize = 96; 
+  logArrayInChunks(SHIPS, chunkSize);
+
+
   if (index === 1) {
     SHIPS = SHIPS.map(([width, height]) => [height, width]);
   }
 
   while (SHIPS.length > 0) {
-    console.log("ships before filtering: ", SHIPS)
+    // console.log("ships before filtering: ", SHIPS)
     SHIPS = SHIPS.filter((ship) => ship !== undefined);
     packShips(SHIPS);
   }
@@ -82,22 +105,22 @@ function packShips(SHIPS) {
         index
       );
     } else {
-      console.log("CONTAINER is full, cannot pack more SHIPS.");
+      // console.log("CONTAINER is full, cannot pack more SHIPS.");
       placeShip(CONTAINER[0].length - 1, CONTAINER.length - 1, [shipHeight, shipWidth], index);
     }
   });
 }
 
 function placeShip(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, [sideA, sideB], index) {
-  console.log('Placing ship at:', firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray);
-  console.log('Ship dimensions:', sideA, sideB);
+  // console.log('Placing ship at:', firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray);
+  // console.log('Ship dimensions:', sideA, sideB);
 
   if (canPlaceShipHorizontally(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, CONTAINER)) {
       placeShipHorizontally(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, index, CONTAINER, SHIPS);
   } else if (canPlaceShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, CONTAINER)) {
       placeShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, index, CONTAINER, SHIPS);
   } else if (isSmallerShipExists(index)) {
-    console.log('skipping this ship...')
+    // console.log('skipping this ship...')
   } else {
       placeShipToTheNewContainer(sideA, sideB, index);
   }
@@ -105,6 +128,10 @@ function placeShip(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArr
 
 function placeShipToTheNewContainer(sideA, sideB, index) {
   ROUNDS++;
+
+// !Todo - remove after debug
+  CONTAINERS.push(CONTAINER);
+
   CONTAINER = initializeContainer(CONTAINER[0].length, CONTAINER.length);
 
   if (canPlaceShipHorizontally(0, 0, sideA, sideB, CONTAINER)) {
