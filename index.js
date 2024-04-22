@@ -54,7 +54,11 @@ function initializeRound(anchorageSize, fleets, index) {
     SHIPS = SHIPS.map(([width, height]) => [height, width]);
   }
 
-  packShips(SHIPS);
+  while (SHIPS.length > 0) {
+    console.log("ships before filtering: ", SHIPS)
+    SHIPS = SHIPS.filter((ship) => ship !== undefined);
+    packShips(SHIPS);
+  }
 
   if (index === 0) {
     ROUNDS_A = ROUNDS;
@@ -87,12 +91,13 @@ function packShips(SHIPS) {
 function placeShip(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, [sideA, sideB], index) {
   console.log('Placing ship at:', firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray);
   console.log('Ship dimensions:', sideA, sideB);
-  console.log('SHIPS[]: ', SHIPS);
 
   if (canPlaceShipHorizontally(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, CONTAINER)) {
       placeShipHorizontally(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, index, CONTAINER, SHIPS);
   } else if (canPlaceShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, CONTAINER)) {
       placeShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, index, CONTAINER, SHIPS);
+  } else if (isSmallerShipExists(index)) {
+    console.log('skipping this ship...')
   } else {
       placeShipToTheNewContainer(sideA, sideB, index);
   }
@@ -107,6 +112,24 @@ function placeShipToTheNewContainer(sideA, sideB, index) {
   } else if (canPlaceShipVertically(0, 0, sideA, sideB, CONTAINER)) {
     placeShipVertically(0, 0, sideA, sideB, index, CONTAINER, SHIPS);
   }
+}
+
+function isSmallerShipExists(index) {
+  const currentShip = SHIPS[index];
+
+  for (let i = index + 1; i < SHIPS.length; i++) {
+      const ship = SHIPS[i];
+
+      const currentShipStringified = JSON.stringify(currentShip);
+      const currentShipStringifiedSwapped = JSON.stringify([currentShip[1], currentShip[0]]);
+      const shipToCompareStringified = JSON.stringify(ship);
+
+      if (shipToCompareStringified !== currentShipStringified && shipToCompareStringified !== currentShipStringifiedSwapped) {
+        return true;
+      }
+  }
+
+  return false;
 }
 
 app.listen(port, () => {

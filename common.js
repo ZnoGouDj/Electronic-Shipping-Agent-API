@@ -66,7 +66,7 @@ function willCurrentShipFitIfRotated(container, i, j, ship) {
 
   for (let x = i; x < i + rotatedShip[1]; x++) {
       for (let y = j; y < j + rotatedShip[0]; y++) {
-          if (container[x][y] === 1) {
+          if (container[x][y] !== 0) {
               return false;
           }
       }
@@ -88,9 +88,11 @@ function canPlaceShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositio
 exports.canPlaceShipVertically = canPlaceShipVertically;
 
 function placeShipHorizontally(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, index, CONTAINER, SHIPS) {
+  const randomSymbol = getNextSymbolOrNumber();
+
   for (let i = firstEmptyPositionInRegularArray; i < firstEmptyPositionInRegularArray + sideB; i++) {
       for (let j = firstEmptyPositionInDeepArray; j < firstEmptyPositionInDeepArray + sideA; j++) {
-          CONTAINER[i][j] = 1;
+          CONTAINER[i][j] = randomSymbol;
       }
   }
   SHIPS.splice(index, 1, undefined);
@@ -100,9 +102,11 @@ function placeShipHorizontally(firstEmptyPositionInDeepArray, firstEmptyPosition
 exports.placeShipHorizontally = placeShipHorizontally;
 
 function placeShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, index, CONTAINER, SHIPS) {
+  const randomSymbol = getNextSymbolOrNumber();
+
   for (let i = firstEmptyPositionInRegularArray; i < firstEmptyPositionInRegularArray + sideA; i++) {
       for (let j = firstEmptyPositionInDeepArray; j < firstEmptyPositionInDeepArray + sideB; j++) {
-          CONTAINER[i][j] = 1;
+          CONTAINER[i][j] = randomSymbol;
       }
   }
   SHIPS.splice(index, 1, undefined);
@@ -110,3 +114,15 @@ function placeShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositionIn
 }
 
 exports.placeShipVertically = placeShipVertically;
+
+let currentSymbolIndex = 0;
+function getNextSymbolOrNumber() {
+  const symbols = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+  const numbers = "123456789";
+  const alphabet = "abcdefghijklmnopqrstuvwxyz";
+  const characters = symbols + numbers + alphabet;
+
+  currentSymbolIndex = (currentSymbolIndex + 1) % characters.length;
+
+  return characters.charAt(currentSymbolIndex);
+}
