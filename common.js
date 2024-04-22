@@ -74,3 +74,39 @@ function willCurrentShipFitIfRotated(container, i, j, ship) {
 
   return true;
 }
+
+function canPlaceShipHorizontally(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, CONTAINER) {
+  return CONTAINER[0].length - firstEmptyPositionInDeepArray >= sideA && CONTAINER.length - firstEmptyPositionInRegularArray >= sideB;
+}
+
+exports.canPlaceShipHorizontally = canPlaceShipHorizontally;
+
+function canPlaceShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, CONTAINER) {
+  return CONTAINER[0].length - firstEmptyPositionInDeepArray >= sideB && CONTAINER.length - firstEmptyPositionInRegularArray >= sideA;
+}
+
+exports.canPlaceShipVertically = canPlaceShipVertically;
+
+function placeShipHorizontally(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, index, CONTAINER, SHIPS) {
+  for (let i = firstEmptyPositionInRegularArray; i < firstEmptyPositionInRegularArray + sideB; i++) {
+      for (let j = firstEmptyPositionInDeepArray; j < firstEmptyPositionInDeepArray + sideA; j++) {
+          CONTAINER[i][j] = 1;
+      }
+  }
+  SHIPS.splice(index, 1, undefined);
+  CONTAINER.forEach(row => console.log(row.join(" ")));
+}
+
+exports.placeShipHorizontally = placeShipHorizontally;
+
+function placeShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, index, CONTAINER, SHIPS) {
+  for (let i = firstEmptyPositionInRegularArray; i < firstEmptyPositionInRegularArray + sideA; i++) {
+      for (let j = firstEmptyPositionInDeepArray; j < firstEmptyPositionInDeepArray + sideB; j++) {
+          CONTAINER[i][j] = 1;
+      }
+  }
+  SHIPS.splice(index, 1, undefined);
+  CONTAINER.forEach(row => console.log(row.join(" ")));
+}
+
+exports.placeShipVertically = placeShipVertically;

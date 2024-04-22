@@ -3,7 +3,11 @@ const bodyParser = require('body-parser');
 const {
   convertFleetsToFleetArray,
   initializeContainer,
-  findEmptyPosition
+  findEmptyPosition,
+  canPlaceShipVertically,
+  canPlaceShipHorizontally,
+  placeShipVertically,
+  placeShipHorizontally
 } = require('./common.js')
 
 const app = express();
@@ -85,51 +89,23 @@ function placeShip(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArr
   console.log('Ship dimensions:', sideA, sideB);
   console.log('SHIPS[]: ', SHIPS);
 
-  if (canPlaceShipHorizontally(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB)) {
-      placeShipHorizontally(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, index);
-  } else if (canPlaceShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB)) {
-      placeShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, index);
+  if (canPlaceShipHorizontally(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, CONTAINER)) {
+      placeShipHorizontally(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, index, CONTAINER, SHIPS);
+  } else if (canPlaceShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, CONTAINER)) {
+      placeShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, index, CONTAINER, SHIPS);
   } else {
       placeShipToTheNewContainer(sideA, sideB, index);
   }
-}
-
-function canPlaceShipHorizontally(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB) {
-  return CONTAINER[0].length - firstEmptyPositionInDeepArray >= sideA && CONTAINER.length - firstEmptyPositionInRegularArray >= sideB;
-}
-
-function canPlaceShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB) {
-  return CONTAINER[0].length - firstEmptyPositionInDeepArray >= sideB && CONTAINER.length - firstEmptyPositionInRegularArray >= sideA;
-}
-
-function placeShipHorizontally(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, index) {
-  for (let i = firstEmptyPositionInRegularArray; i < firstEmptyPositionInRegularArray + sideB; i++) {
-      for (let j = firstEmptyPositionInDeepArray; j < firstEmptyPositionInDeepArray + sideA; j++) {
-          CONTAINER[i][j] = 1;
-      }
-  }
-  SHIPS.splice(index, 1, undefined);
-  CONTAINER.forEach(row => console.log(row.join(" ")));
-}
-
-function placeShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, index) {
-  for (let i = firstEmptyPositionInRegularArray; i < firstEmptyPositionInRegularArray + sideA; i++) {
-      for (let j = firstEmptyPositionInDeepArray; j < firstEmptyPositionInDeepArray + sideB; j++) {
-          CONTAINER[i][j] = 1;
-      }
-  }
-  SHIPS.splice(index, 1, undefined);
-  CONTAINER.forEach(row => console.log(row.join(" ")));
 }
 
 function placeShipToTheNewContainer(sideA, sideB, index) {
   ROUNDS++;
   CONTAINER = initializeContainer(CONTAINER[0].length, CONTAINER.length);
 
-  if (canPlaceShipHorizontally(0, 0, sideA, sideB)) {
-    placeShipHorizontally(0, 0, sideA, sideB, index);
-  } else if (canPlaceShipVertically(0, 0, sideA, sideB)) {
-    placeShipVertically(0, 0, sideA, sideB, index);
+  if (canPlaceShipHorizontally(0, 0, sideA, sideB, CONTAINER)) {
+    placeShipHorizontally(0, 0, sideA, sideB, index, CONTAINER, SHIPS);
+  } else if (canPlaceShipVertically(0, 0, sideA, sideB, CONTAINER)) {
+    placeShipVertically(0, 0, sideA, sideB, index, CONTAINER, SHIPS);
   }
 }
 
