@@ -1,6 +1,5 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-
 const {
   convertFleetsToFleetArray,
   initializeContainer,
@@ -13,11 +12,10 @@ const port = 4000;
 app.use(bodyParser.json());
 
 let ROUNDS = 0;
-let CONTAINER;
-let SHIPS;
-
 let ROUNDS_A = 0;
 let ROUNDS_B = 0;
+let CONTAINER;
+let SHIPS;
 
 app.post('/calculateRounds', handleCalculateRounds);
 
@@ -52,9 +50,6 @@ function initializeRound(anchorageSize, fleets, index) {
     SHIPS = SHIPS.map(([width, height]) => [height, width]);
   }
 
-  console.log('CONTAINER dimensions:', CONTAINER[0].length, CONTAINER.length);
-  console.log('ship: ', SHIPS);
-
   packShips(SHIPS);
 
   if (index === 0) {
@@ -62,6 +57,27 @@ function initializeRound(anchorageSize, fleets, index) {
   } else if (index === 1) {
     ROUNDS_B = ROUNDS;
   }
+}
+
+function packShips(SHIPS) {
+  SHIPS.forEach((ship, index) => {
+    const [shipWidth, shipHeight] = ship;
+    const emptyPosition = findEmptyPosition(CONTAINER, ship);
+
+    if (emptyPosition) {
+      const [firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, needsRotation] = emptyPosition;
+
+      placeShip(
+        firstEmptyPositionInDeepArray,
+        firstEmptyPositionInRegularArray,
+        needsRotation ? [shipWidth, shipHeight] : [shipHeight, shipWidth],
+        index
+      );
+    } else {
+      console.log("CONTAINER is full, cannot pack more SHIPS.");
+      placeShip(CONTAINER[0].length - 1, CONTAINER.length - 1, [shipHeight, shipWidth], index);
+    }
+  });
 }
 
 function placeShip(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, [sideA, sideB], index) {
@@ -74,7 +90,7 @@ function placeShip(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArr
   } else if (canPlaceShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB)) {
       placeShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, sideA, sideB, index);
   } else {
-      handleInsufficientSpace(sideA, sideB, index);
+      placeShipToTheNewContainer(sideA, sideB, index);
   }
 }
 
@@ -106,47 +122,15 @@ function placeShipVertically(firstEmptyPositionInDeepArray, firstEmptyPositionIn
   CONTAINER.forEach(row => console.log(row.join(" ")));
 }
 
-function handleInsufficientSpace(sideA, sideB, index) {
+function placeShipToTheNewContainer(sideA, sideB, index) {
   ROUNDS++;
   CONTAINER = initializeContainer(CONTAINER[0].length, CONTAINER.length);
 
-  if (CONTAINER.length >= sideB && CONTAINER[0].length >= sideA) {
-      for (let i = 0; i < sideA; i++) {
-          for (let j = 0; j < sideB; j++) {
-              CONTAINER[i][j] = 1;
-          }
-      }
-  } else if (CONTAINER[0].length >= sideB && CONTAINER.length >= sideA) {
-      for (let i = 0; i < sideB; i++) {
-          for (let j = 0; j < sideA; j++) {
-              CONTAINER[i][j] = 1;
-          }
-      }
+  if (canPlaceShipHorizontally(0, 0, sideA, sideB)) {
+    placeShipHorizontally(0, 0, sideA, sideB, index);
+  } else if (canPlaceShipVertically(0, 0, sideA, sideB)) {
+    placeShipVertically(0, 0, sideA, sideB, index);
   }
-
-  SHIPS.splice(index, 1, undefined);
-  CONTAINER.forEach(row => console.log(row.join(" ")));
-}
-
-function packShips(SHIPS) {
-  SHIPS.forEach((ship, index) => {
-    const [shipWidth, shipHeight] = ship;
-    const emptyPosition = findEmptyPosition(CONTAINER, ship);
-
-    if (emptyPosition) {
-      const [firstEmptyPositionInDeepArray, firstEmptyPositionInRegularArray, needsRotation] = emptyPosition;
-
-      placeShip(
-        firstEmptyPositionInDeepArray,
-        firstEmptyPositionInRegularArray,
-        needsRotation ? [shipWidth, shipHeight] : [shipHeight, shipWidth],
-        index
-      );
-    } else {
-      console.log("CONTAINER is full, cannot pack more SHIPS.");
-      placeShip(CONTAINER[0].length - 1, CONTAINER.length - 1, [shipWidth, shipHeight], index);
-    }
-  });
 }
 
 app.listen(port, () => {
